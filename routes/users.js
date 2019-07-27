@@ -54,8 +54,10 @@ router.post('/register', (req, res) => {
           email,
           password
         });
-
+        // 10 - rounds, the cost of processing the data. (default - 10)
         bcrypt.genSalt(10, (err, salt) => {
+          // salt - the salt to be used to hash the password. if specified as a number then a salt will be generated with the specified number of rounds and used
+          // пример salt: $2a$10$zcFvcgT/QpkFxBB6Xlrnye
           bcrypt.hash(newUser.password, salt, (err, hash) => {
             if (err) throw err;
             newUser.password = hash;
@@ -65,7 +67,8 @@ router.post('/register', (req, res) => {
                 req.flash(
                   'success_msg',
                   'You are now registered and can log in'
-                );
+                ); // запишет в session.flash.success_msg, в app.js есть ф-ция кот. зибрает значения в res.locals
+
                 res.redirect('/users/login');
               })
               .catch(err => console.log(err));
@@ -87,7 +90,7 @@ router.post('/login', (req, res, next) => {
 
 // Logout
 router.get('/logout', (req, res) => {
-  req.logout();
+  req.logout(); // предоставляет passport
   req.flash('success_msg', 'You are logged out');
   res.redirect('/users/login');
 });

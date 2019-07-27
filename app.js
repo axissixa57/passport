@@ -39,17 +39,19 @@ app.use(
 );
 
 // Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize()); // To use Passport in an Express or Connect-based application, configure it with the required passport.initialize() middleware. 
+app.use(passport.session()); // If your application uses persistent login sessions (recommended, but not required), passport.session() middleware must also be used.
 
 // Connect flash
 app.use(flash());
 
 // Global variables
 app.use(function(req, res, next) {
+  // success_msg, error_msg, error - будут доступны в .ejs даже если не указать явно, через options при res.render
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
+
   next();
 });
 
