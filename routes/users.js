@@ -84,7 +84,7 @@ router.post('/login', (req, res, next) => {
   passport.authenticate('local', {
     successRedirect: '/dashboard',
     failureRedirect: '/users/login',
-    failureFlash: true
+    failureFlash: true // при ошибке отправит в ejs значение (кот. передаётся в done 3 аргументом) в переменной error
   })(req, res, next);
 });
 
