@@ -36,21 +36,20 @@ app.use(
     resave: true,
     saveUninitialized: true,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000
     }
   })
 );
 
 // Passport middleware
-app.use(passport.initialize()); // To use Passport in an Express or Connect-based application, configure it with the required passport.initialize() middleware. 
-app.use(passport.session()); // If your application uses persistent login sessions (recommended, but not required), passport.session() middleware must also be used.
+app.use(passport.initialize());  
+app.use(passport.session()); 
 
 // Connect flash
 app.use(flash());
 
 // Global variables
 app.use(function(req, res, next) {
-  // success_msg, error_msg, error - будут доступны в .ejs даже если не указать явно, через options при res.render
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
@@ -62,6 +61,7 @@ app.use(function(req, res, next) {
 app.use('/', require('./routes/index.js'));
 app.use('/users', require('./routes/users.js'));
 app.use('/auth/github', require('./routes/github.js'));
+app.use('/auth/steam', require('./routes/steam.js'));
 
 const PORT = process.env.PORT || 5000;
 
