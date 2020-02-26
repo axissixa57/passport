@@ -13,6 +13,12 @@ const UserSchema = new mongoose.Schema({
   githubId: {
     type: String
   },
+  steamId: {
+    type: String
+  },
+  photos: {
+    type: Array
+  },
   date: {
     type: Date,
     default: Date.now

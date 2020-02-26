@@ -26,6 +26,7 @@
         </div>
         <button type="submit" class="btn btn-primary btn-block">Login</button>
         <button id="githubButton" class="btn btn-dark btn-block">Login with GitHub<i style="font-size: 25px; margin-left: 15px;" class="fab fa-github"></i></button>
+        <button id="steamButton" class="btn btn-dark btn-block">Login with Steam<i style="font-size: 25px; margin-left: 15px;" class="fab fa-steam"></i></button>
       </form>
       <p class="lead mt-4">
         No Account? <a href="/users/register">Register</a>
@@ -35,8 +36,14 @@
 </div>
 <script>
   const githubButton = document.getElementById('githubButton')
+  const steamButton = document.getElementById('steamButton')
   githubButton.addEventListener('click', (e) => {
     e.preventDefault();
     location.href = 'http://localhost:5000/auth/github'
-})
+  })
+
+  steamButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    location.href = 'http://localhost:5000/auth/steam'
+  })
 </script>

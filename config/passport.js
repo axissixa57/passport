@@ -1,5 +1,6 @@
 const LocalStrategy = require("passport-local").Strategy;
 const GithubStrategy = require("passport-github").Strategy;
+const SteamStrategy = require("passport-steam").Strategy;
 const bcrypt = require("bcryptjs");
 
 // Load User model
@@ -7,7 +8,6 @@ const User = require("../models/user");
 
 module.exports = function(passport) {
   passport.use(
-    // email, password - считываются из req.body (by names of inputs from a form)
     new LocalStrategy({ usernameField: "email" }, (email, password, done) => {
       // Match user
       User.findOne({
@@ -21,7 +21,7 @@ module.exports = function(passport) {
         bcrypt.compare(password, user.password, (err, isMatch) => {
           if (err) throw err;
           if (isMatch) {
-            // passport запишет usera из bd в объект req.user
+            // req.user
             return done(null, user);
           } else {
             return done(null, false, { message: "Password incorrect" });
@@ -30,6 +30,7 @@ module.exports = function(passport) {
       });
     })
   );
+  // Passport strategy for authenticating with GitHub using the OAuth 2.0 API
   passport.use(
     new GithubStrategy(
       {
@@ -38,28 +39,51 @@ module.exports = function(passport) {
         callbackURL: "http://localhost:5000/auth/github/callback"
       },
       (accessToken, refreshToken, profile, done) => {
-        return (
-          User.findOne({ githubId: profile.id })
-            .then(user =>
-              user
-                ? user
-                : new User({
-                    githubId: profile.id,
-                    name: profile.username
-                  }).save()
-            )
-            .then(data => {
-              done(null, data)
-            })
-            .catch(err => done(null, false, { message: err }))
-        );
+        return User.findOne({ githubId: profile.id })
+          .then(user =>
+            user
+              ? user
+              : new User({
+                  githubId: profile.id,
+                  name: profile.username
+                }).save()
+          )
+          .then(data => {
+            done(null, data);
+          })
+          .catch(err => done(null, false, { message: err }));
       }
     )
   );
+  // Passport strategy for authenticating with Steam using OpenID 2.0.
+  passport.use(
+    new SteamStrategy(
+      {
+        returnURL: "http://localhost:5000/auth/steam/return",
+        realm: "http://localhost:5000/",
+        // apiKey: "43204A5A61A92029F3FA74E2C6D78842" // for receive profile data
+      },
+      function(identifier, profile, done) {
+        // identifier (OpenID identifier) = https://steamcommunity.com/openid/id/76561198020726188
+        // profile = {provider: 'steam', _json: {}, id: '76561198020726188', displayName: 'nick', photos: [{},{},{}]}
 
-  // Passport will maintain persistent login sessions. In order for persistent sessions to work, the authenticated user must be serialized to the session, and deserialized when subsequent requests are made.
-
-  // Passport does not impose any restrictions on how your user records are stored. Instead, you provide functions to Passport which implements the necessary serialization and deserialization logic. In a typical application, this will be as simple as serializing the user ID, and finding the user by ID when deserializing.
+        return User.findOne({ steamId: profile.id })
+          .then(user =>
+            user
+              ? user
+              : new User({
+                  steamId: profile.id,
+                  name: profile.displayName,
+                  photos: profile.photos
+                }).save()
+          )
+          .then(data => {
+            done(null, data);
+          })
+          .catch(err => done(null, false, { message: err }));
+      }
+    )
+  );
 
   passport.serializeUser(function(user, done) {
     done(null, user.id);
